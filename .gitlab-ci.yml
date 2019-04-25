@@ -53,7 +53,7 @@ build_uniswap_statistics-api:
   image: lwolf/helm-kubectl-docker:v193_281
 
 # deploy to environment: staging
-deploy_uniswap_fetchers:
+deploy_uniswap_fetchers_staging:
   <<: *deploy-head-staging
   script:
   - apk add --update git
@@ -66,7 +66,7 @@ deploy_uniswap_fetchers:
   - develop
 
 # deploy to environment: staging
-deploy_uniswap_statistics-api:
+deploy_uniswap_statistics_api_staging:
   <<: *deploy-head-staging
   script:
   - apk add --update git
@@ -78,11 +78,15 @@ deploy_uniswap_statistics-api:
   only:
   - develop
 
+# ============= Deploy =============
 # ------------ PROD ----------
+.deploy-head-prod: &deploy-head-prod
+  stage: release
+  image: lwolf/helm-kubectl-docker:v193_281
+
 # deploy to production environment
-# deploy to environment: staging
-deploy_uniswap_fetchers:
-  <<: *deploy-head-staging
+deploy_uniswap_fetchers_prod:
+  <<: *deploy-head-prod
   script:
   - apk add --update git
   - git clone ${GITLAB_CREDITIALS}
@@ -93,9 +97,9 @@ deploy_uniswap_fetchers:
   only:
   - master
 
-# deploy to environment: staging
-deploy_uniswap_statistics-api:
-  <<: *deploy-head-staging
+# deploy to production environment
+deploy_uniswap_statistics_api_prod:
+  <<: *deploy-head-prod
   script:
   - apk add --update git
   - git clone ${GITLAB_CREDITIALS}
