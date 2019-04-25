@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Nethereum.Autogen.ContractApi" Version="3.2.0" />
+      <PackageReference Include="Nethereum.Web3" Version="3.2.0" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <!-- Set to true to enable code generation -->
+      <NethereumGenerateCode>false</NethereumGenerateCode>
+    </PropertyGroup>
+
+</Project>

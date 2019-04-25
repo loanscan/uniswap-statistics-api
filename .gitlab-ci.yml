@@ -1,0 +1,111 @@
+stages:
+  - test
+  - build
+  - deploy-to-staging
+  - release
+
+variables:
+  CONTAINER_IMAGE_BUILT_TAG: ${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHA}
+  CONFIG_REPO_NAME: uniswap-statistics-api-configs
+
+# ============= Build ==============
+.build-head: &build-head
+  stage: build
+  image: docker:latest
+  services:
+  - docker:dind
+
+# build container image
+build_uniswap_fetchers:
+  <<: *build-head
+  script:
+  - apk add --update git
+  - git clone ${GITLAB_CREDITIALS}
+  - cp -r ./${CONFIG_REPO_NAME}/deployment ./
+  - cp ./${CONFIG_REPO_NAME}/Uniswap.Fetchers/* ./src/Uniswap.Fetchers
+  - deployment/updateconfigs.sh Uniswap.Fetchers None
+  - source deployment/login.sh
+  - deployment/build.sh ${AWS_REGISTRY_IMAGE_FETCHERS} Uniswap.Fetchers
+  only:
+  - master
+  - develop
+
+# build container image
+build_uniswap_statistics-api:
+  <<: *build-head
+  script:
+  - apk add --update git
+  - git clone ${GITLAB_CREDITIALS}
+  - cp -r ./${CONFIG_REPO_NAME}/deployment ./
+  - cp ./${CONFIG_REPO_NAME}/Uniswap.Statistics.Api/* ./src/Uniswap.Statistics.Api
+  - deployment/updateconfigs.sh Uniswap.Statistics.Api Content
+  - source deployment/login.sh
+  - deployment/build.sh ${AWS_REGISTRY_IMAGE_UNISWAP_API} Uniswap.Statistics.Api
+  only:
+  - master
+  - develop
+
+
+# ============= Deploy =============
+# ------------ STAGING ----------
+.deploy-head-staging: &deploy-head-staging
+  stage: deploy-to-staging
+  image: lwolf/helm-kubectl-docker:v193_281
+
+# deploy to environment: staging
+deploy_uniswap_fetchers:
+  <<: *deploy-head-staging
+  script:
+  - apk add --update git
+  - git clone ${GITLAB_CREDITIALS}
+  - cp -r ./${CONFIG_REPO_NAME}/deployment ./
+  - deployment/deploy.sh uniswap-fetchers staging 
+  environment:
+    name: staging
+  only:
+  - develop
+
+# deploy to environment: staging
+deploy_uniswap_statistics-api:
+  <<: *deploy-head-staging
+  script:
+  - apk add --update git
+  - git clone ${GITLAB_CREDITIALS}
+  - cp -r ./${CONFIG_REPO_NAME}/deployment ./
+  - deployment/deploy.sh uniswap-statistics-api staging 
+  environment:
+    name: staging
+  only:
+  - develop
+
+# ------------ PROD ----------
+# deploy to production environment
+# deploy to environment: staging
+deploy_uniswap_fetchers:
+  <<: *deploy-head-staging
+  script:
+  - apk add --update git
+  - git clone ${GITLAB_CREDITIALS}
+  - cp -r ./${CONFIG_REPO_NAME}/deployment ./
+  - deployment/deploy.sh uniswap-fetchers prod
+  environment:
+    name: staging
+  only:
+  - master
+
+# deploy to environment: staging
+deploy_uniswap_statistics-api:
+  <<: *deploy-head-staging
+  script:
+  - apk add --update git
+  - git clone ${GITLAB_CREDITIALS}
+  - cp -r ./${CONFIG_REPO_NAME}/deployment ./
+  - deployment/deploy.sh uniswap-statistics-api prod
+  environment:
+    name: staging
+  only:
+  - master
+
+
+
+
