@@ -19,6 +19,9 @@ namespace Uniswap.Data.Mongo.Indexes
             
             await _collection.Indexes.CreateOneAsync(
                 new CreateIndexModel<MongoExchangeEventEntity>(indexBuilder.Ascending(x => x.Timestamp)));
+
+            await _collection.Indexes.CreateOneAsync(
+                new CreateIndexModel<MongoExchangeEventEntity>(indexBuilder.Ascending(x => x.ExchangeAddress)));
         }
     }
 }
