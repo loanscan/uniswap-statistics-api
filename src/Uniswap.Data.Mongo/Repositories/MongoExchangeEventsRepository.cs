@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using Uniswap.Data.AggregationResults;
 using Uniswap.Data.Entities;
 using Uniswap.Data.Mongo.Entities;
 using Uniswap.Data.Repositories;
@@ -84,6 +87,67 @@ namespace Uniswap.Data.Mongo.Repositories
             
             var result = await _collection.FindAsync(filter);
             return await result.ToListAsync();
+        }
+
+        public async Task<IEnumerable<IExchangeChartAggregationResultElement>> GetChartsAsync(string exchangeAddress, DateTime start, DateTime end, int chartIntervalUnit)
+        {
+            var aggregation = _collection.Aggregate()
+                .Match(x =>
+                    x.ExchangeAddress == exchangeAddress && x.Timestamp >= start && x.Timestamp <= end)
+                .Project(entity => new
+                {
+                    entity.Timestamp,
+                    entity.EthLiquidityAfterEvent,
+                    entity.TokenLiquidityAfterEvent,
+                    EthAmount = entity.Type == ExchangeEventType.EthPurchase ||
+                                entity.Type == ExchangeEventType.TokenPurchase
+                        ? entity.EthAmount
+                        : 0
+                })
+                .SortBy(x => x.Timestamp);
+
+            IAggregateFluent<MongoExchangeChartAggregationResultElement> aggregateFluent;
+
+            switch (chartIntervalUnit)
+            {
+                case 0:
+                    aggregateFluent = aggregation.Group(
+                        arg => new DateTime(arg.Timestamp.Year, arg.Timestamp.Month, arg.Timestamp.Day),
+                        grouping => new MongoExchangeChartAggregationResultElement
+                        {
+                            EthLiquidity = grouping.Last().EthLiquidityAfterEvent,
+                            TokenLiquidity = grouping.Last().TokenLiquidityAfterEvent,
+                            EthVolume = grouping.Sum(x => x.EthAmount),
+                            Id = grouping.Key
+                        });
+                    break;
+                case 1:
+                    aggregateFluent = aggregation.Group(
+                        arg => new DateTime(arg.Timestamp.Year, arg.Timestamp.Month, 1),
+                        grouping => new MongoExchangeChartAggregationResultElement
+                        {
+                            EthLiquidity = grouping.Last().EthLiquidityAfterEvent,
+                            TokenLiquidity = grouping.Last().TokenLiquidityAfterEvent,
+                            EthVolume = grouping.Sum(x => x.EthAmount),
+                            Id = grouping.Key
+                        });
+                    break;
+                case 2:
+                    aggregateFluent = aggregation.Group(
+                        arg => new DateTime(arg.Timestamp.Year, 1, 1),
+                        grouping => new MongoExchangeChartAggregationResultElement
+                        {
+                            EthLiquidity = grouping.Last().EthLiquidityAfterEvent,
+                            TokenLiquidity = grouping.Last().TokenLiquidityAfterEvent,
+                            EthVolume = grouping.Sum(x => x.EthAmount),
+                            Id = grouping.Key
+                        });
+                    break;
+                default:
+                    throw new InvalidEnumArgumentException(nameof(chartIntervalUnit));
+            }
+
+            return await aggregateFluent.SortBy(x => x.Id).ToListAsync();
         }
     }
 }
