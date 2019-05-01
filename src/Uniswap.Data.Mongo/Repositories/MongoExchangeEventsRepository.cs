@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using Uniswap.Data.AggregationResults;
 using Uniswap.Data.Entities;
 using Uniswap.Data.Mongo.Entities;
 using Uniswap.Data.Repositories;
@@ -88,7 +89,7 @@ namespace Uniswap.Data.Mongo.Repositories
             return await result.ToListAsync();
         }
 
-        public async Task<IEnumerable<IExchangeChartEntity>> BuildChartAggregation(string exchangeAddress, DateTime start, DateTime end, int chartIntervalUnit)
+        public async Task<IEnumerable<IExchangeChartAggregationResultElement>> GetChartsAsync(string exchangeAddress, DateTime start, DateTime end, int chartIntervalUnit)
         {
             var aggregation = _collection.Aggregate()
                 .Match(x =>
@@ -105,14 +106,14 @@ namespace Uniswap.Data.Mongo.Repositories
                 })
                 .SortBy(x => x.Timestamp);
 
-            IAggregateFluent<MongoExchangeChartEntity> aggregateFluent;
+            IAggregateFluent<MongoExchangeChartAggregationResultElement> aggregateFluent;
 
             switch (chartIntervalUnit)
             {
                 case 0:
                     aggregateFluent = aggregation.Group(
                         arg => new DateTime(arg.Timestamp.Year, arg.Timestamp.Month, arg.Timestamp.Day),
-                        grouping => new MongoExchangeChartEntity
+                        grouping => new MongoExchangeChartAggregationResultElement
                         {
                             EthLiquidity = grouping.Last().EthLiquidityAfterEvent,
                             TokenLiquidity = grouping.Last().TokenLiquidityAfterEvent,
@@ -123,7 +124,7 @@ namespace Uniswap.Data.Mongo.Repositories
                 case 1:
                     aggregateFluent = aggregation.Group(
                         arg => new DateTime(arg.Timestamp.Year, arg.Timestamp.Month, 1),
-                        grouping => new MongoExchangeChartEntity
+                        grouping => new MongoExchangeChartAggregationResultElement
                         {
                             EthLiquidity = grouping.Last().EthLiquidityAfterEvent,
                             TokenLiquidity = grouping.Last().TokenLiquidityAfterEvent,
@@ -134,7 +135,7 @@ namespace Uniswap.Data.Mongo.Repositories
                 case 2:
                     aggregateFluent = aggregation.Group(
                         arg => new DateTime(arg.Timestamp.Year, 1, 1),
-                        grouping => new MongoExchangeChartEntity
+                        grouping => new MongoExchangeChartAggregationResultElement
                         {
                             EthLiquidity = grouping.Last().EthLiquidityAfterEvent,
                             TokenLiquidity = grouping.Last().TokenLiquidityAfterEvent,

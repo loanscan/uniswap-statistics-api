@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Uniswap.Data.AggregationResults;
 using Uniswap.Data.Entities;
 
 namespace Uniswap.Data.Repositories
@@ -13,7 +14,7 @@ namespace Uniswap.Data.Repositories
         Task<IEnumerable<IExchangeEventEntity>> GetSortedByDateRangeAsync(string exchangeAddress, DateTime start, DateTime end, int limit);
         Task<IEnumerable<IExchangeEventEntity>> FindByAsync(string userAddress, string exchangeAddress);
 
-        Task<IEnumerable<IExchangeChartEntity>> BuildChartAggregation(
+        Task<IEnumerable<IExchangeChartAggregationResultElement>> GetChartsAsync(
             string exchangeAddress, DateTime start, DateTime end, int chartIntervalUnit);
     }
 }

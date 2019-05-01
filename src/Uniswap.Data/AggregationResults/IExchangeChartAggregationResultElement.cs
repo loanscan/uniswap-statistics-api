@@ -1,9 +1,10 @@
 using System;
 
-namespace Uniswap.Data.Entities
+namespace Uniswap.Data.AggregationResults
 {
-    public interface IExchangeChartEntity : IEntityBase<DateTime>
+    public interface IExchangeChartAggregationResultElement
     {
+        DateTime Id { get; set; }
         decimal EthLiquidity { get; set; }
         decimal TokenLiquidity { get; set; }
         decimal EthVolume { get; set; }

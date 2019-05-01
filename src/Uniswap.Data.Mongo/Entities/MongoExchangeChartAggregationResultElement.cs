@@ -1,10 +1,10 @@
 using System;
 using MongoDB.Bson.Serialization.Attributes;
-using Uniswap.Data.Entities;
+using Uniswap.Data.AggregationResults;
 
 namespace Uniswap.Data.Mongo.Entities
 {
-    public class MongoExchangeChartEntity : IExchangeChartEntity
+    public class MongoExchangeChartAggregationResultElement : IExchangeChartAggregationResultElement
     {
         [BsonId]
         public DateTime Id { get; set; }

@@ -21,7 +21,7 @@ namespace Uniswap.Statistics.Api.Core.Chart.Impl
             
             var start = startTime.ToUnixUtcDateTime();
             var end = endTime.ToUnixUtcDateTime();
-            var chartAggregation = await _exchangeEventsRepository.BuildChartAggregation(exchangeAddress, start, end, (int)unit);
+            var chartAggregation = await _exchangeEventsRepository.GetChartsAsync(exchangeAddress, start, end, (int)unit);
             
             return chartAggregation.Select(chart => new Chart
             {
