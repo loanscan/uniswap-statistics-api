@@ -38,8 +38,7 @@ namespace Uniswap.Statistics.Api.Composition
 
             builder
                 .RegisterType<MongoExchangeEventsIndexInitializer>()
-                .As<IIndexInitializer>()
-                .SingleInstance();
+                .As<IIndexInitializer>();
 
             base.Load(builder);
         }
