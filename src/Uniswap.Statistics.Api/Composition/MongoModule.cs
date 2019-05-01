@@ -1,5 +1,6 @@
 using Autofac;
 using MongoDB.Driver;
+using Uniswap.Data.Indexes;
 using Uniswap.Data.Mongo.Entities;
 using Uniswap.Data.Mongo.Indexes;
 using Uniswap.Data.Mongo.Repositories;
@@ -35,12 +36,11 @@ namespace Uniswap.Statistics.Api.Composition
                 .RegisterType<MongoExchangeEventsRepository>()
                 .As<IExchangeEventsRepository>();
 
-            builder.RegisterType<MongoExchangeEventsIndexInitializer>()
-                .OnActivated(async e => await e.Instance.Initialize())
+            builder
+                .RegisterType<MongoExchangeEventsIndexInitializer>()
+                .As<IIndexInitializer>()
                 .SingleInstance();
 
-            builder.RegisterBuildCallback(registry => registry.Resolve<MongoExchangeEventsIndexInitializer>());
-            
             base.Load(builder);
         }
     }

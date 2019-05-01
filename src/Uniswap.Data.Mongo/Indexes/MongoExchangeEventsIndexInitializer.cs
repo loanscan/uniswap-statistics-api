@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using Uniswap.Data.Indexes;
 using Uniswap.Data.Mongo.Entities;
 
 namespace Uniswap.Data.Mongo.Indexes
 {
-    public class MongoExchangeEventsIndexInitializer
+    public class MongoExchangeEventsIndexInitializer : IIndexInitializer
     {
         private readonly IMongoCollection<MongoExchangeEventEntity> _collection;
 
