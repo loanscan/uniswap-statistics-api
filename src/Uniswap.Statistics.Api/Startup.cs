@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
+using Uniswap.Data.Indexes;
 using Uniswap.Statistics.Api.Composition;
 using Uniswap.Statistics.Api.Swagger;
 
@@ -55,8 +56,13 @@ namespace Uniswap.Statistics.Api
             builder.RegisterModule<UserModule>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime)
         {
+            applicationLifetime.ApplicationStarted.Register(() =>
+            {
+                app.ApplicationServices.GetService<IIndexInitializer>().Initialize().GetAwaiter().GetResult();
+            });
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
