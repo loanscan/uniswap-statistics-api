@@ -80,7 +80,7 @@ namespace Uniswap.Fetchers.Core.Exchange.Impl
 
                     await Task.Delay(_fetcherSettings.DelayMs, cancellationToken);
 
-                    if (DateTime.UtcNow - startDate > TimeSpan.FromSeconds(_fetcherSettings.UpdateExchangesIntervalMs))
+                    if (DateTime.UtcNow - startDate > TimeSpan.FromMilliseconds(_fetcherSettings.UpdateExchangesIntervalMs))
                     {
                         break;
                     }
