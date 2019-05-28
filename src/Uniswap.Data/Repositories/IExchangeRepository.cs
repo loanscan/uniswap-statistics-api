@@ -11,5 +11,6 @@ namespace Uniswap.Data.Repositories
         Task<IEnumerable<IExchangeEntity>> GetAllAsync();
         Task<IExchangeEntity> GetLastCreatedAsync();
         Task Update(string exchangeId, decimal ethLiquidity, decimal tokenLiquidity, decimal totalSupply);
+        Task<IEnumerable<IExchangeEntity>> GetAsync(decimal minEthLiquidityAmount);
     }
 }

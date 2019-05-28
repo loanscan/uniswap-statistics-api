@@ -14,9 +14,9 @@ namespace Uniswap.Statistics.Api.Core.Directory.Impl
             _repository = repository;
         }
 
-        public async Task<IEnumerable<IExchangeEntity>> GetAllDirectoriesAsync()
+        public async Task<IEnumerable<IExchangeEntity>> GetDirectoriesAsync(decimal minEthLiquidityAmount)
         {
-            return await _repository.GetAllAsync();
+            return await _repository.GetAsync(minEthLiquidityAmount);
         }
     }
 }

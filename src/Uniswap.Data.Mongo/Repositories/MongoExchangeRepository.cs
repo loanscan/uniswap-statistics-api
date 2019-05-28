@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Uniswap.Data.Entities;
 using Uniswap.Data.Mongo.Entities;
 using Uniswap.Data.Repositories;
@@ -40,6 +40,14 @@ namespace Uniswap.Data.Mongo.Repositories
         public async Task<IEnumerable<IExchangeEntity>> GetAllAsync()
         {
             return await _collection.Find(e => true).ToListAsync();
+        }
+
+        public async Task<IEnumerable<IExchangeEntity>> GetAsync(decimal minEthLiquidityAmount)
+        {
+            return await _collection.AsQueryable()
+                .Where(x => x.EthLiquidity >= minEthLiquidityAmount)
+                .OrderByDescending(x => x.EthLiquidity)
+                .ToListAsync();
         }
 
         public async Task<IExchangeEntity> GetLastCreatedAsync()

@@ -32,9 +32,9 @@ namespace Uniswap.Statistics.Api.Resources.V1.Directory.Controllers
         /// <returns>All exchanges available on Uniswap.</returns>
         [HttpGet]
         [ProducesResponseType(typeof(DirectoriesDto), 200)]
-        public async Task<IActionResult> GetAllDirectoriesAsync()
+        public async Task<IActionResult> GetAllDirectoriesAsync([FromQuery] decimal minEthLiquidity = 0)
         {
-            var directories = await _directoryService.GetAllDirectoriesAsync();
+            var directories = await _directoryService.GetDirectoriesAsync(minEthLiquidity);
 
             return Ok(_mapper.Map<List<IExchangeEntity>, DirectoriesDto>(directories.ToList()));
         }

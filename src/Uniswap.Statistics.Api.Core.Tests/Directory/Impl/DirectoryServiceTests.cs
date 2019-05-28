@@ -15,9 +15,9 @@ namespace Uniswap.Statistics.Api.Core.Tests.Directory.Impl
         {
             var service = Mocker.CreateInstance<DirectoryService>();
 
-            await service.GetAllDirectoriesAsync();
+            await service.GetDirectoriesAsync(0);
 
-            Mocker.GetMock<IExchangeRepository>().Verify(x => x.GetAllAsync(), Times.Once);
+            Mocker.GetMock<IExchangeRepository>().Verify(x => x.GetAsync(0), Times.Once);
         }
     }
 }
