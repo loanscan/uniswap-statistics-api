@@ -6,6 +6,6 @@ namespace Uniswap.Statistics.Api.Core.Directory
 {
     public interface IDirectoryService
     {
-        Task<IEnumerable<IExchangeEntity>> GetAllDirectoriesAsync();
+        Task<IEnumerable<IExchangeEntity>> GetDirectoriesAsync(decimal minEthLiquidityAmount);
     }
 }
