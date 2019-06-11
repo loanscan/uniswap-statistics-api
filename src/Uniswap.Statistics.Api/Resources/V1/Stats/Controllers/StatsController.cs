@@ -32,9 +32,9 @@ namespace Uniswap.Statistics.Api.Resources.V1.Stats.Controllers
         /// <returns>System-wide stats for all exchanges</returns>
         [HttpGet]
         [ProducesResponseType(typeof(StatsExchangesDto), 200)]
-        public async Task<IActionResult> GetStats([FromQuery] StatsOrderBy? orderBy)
+        public async Task<IActionResult> GetStats([FromQuery] StatsOrderBy orderBy = StatsOrderBy.Liquidity)
         {
-            var exchanges = await _statsService.GetAllExchangesAsync(orderBy);
+            var exchanges = await _statsService.GetExchangesAsync(orderBy);
 
             return Ok(_mapper.Map<List<IExchangeEntity>, StatsExchangesDto>(exchanges.ToList()));
         }

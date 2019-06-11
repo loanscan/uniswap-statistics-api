@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Uniswap.Data.Entities;
-using Uniswap.Statistics.Api.Core.Directory;
+using Uniswap.Statistics.Api.Core.Stats;
 using Uniswap.Statistics.Api.Resources.Base;
 using Uniswap.Statistics.Api.Resources.V1.Directory.Dtos;
 
@@ -15,14 +16,14 @@ namespace Uniswap.Statistics.Api.Resources.V1.Directory.Controllers
     [Produces("application/json")]
     public class DirectoryController : ApiControllerBase
     {
-        private readonly IDirectoryService _directoryService;
+        private readonly IStatsService _statsService;
         private readonly IMapper _mapper;
 
         public DirectoryController(
-            IDirectoryService directoryService,
+            IStatsService statsService,
             IMapper mapper)
         {
-            _directoryService = directoryService;
+            _statsService = statsService;
             _mapper = mapper;
         }
 
@@ -32,9 +33,12 @@ namespace Uniswap.Statistics.Api.Resources.V1.Directory.Controllers
         /// <returns>All exchanges available on Uniswap.</returns>
         [HttpGet]
         [ProducesResponseType(typeof(DirectoriesDto), 200)]
-        public async Task<IActionResult> GetAllDirectoriesAsync([FromQuery] decimal minEthLiquidity = 0)
+        public async Task<IActionResult> GetAllDirectoriesAsync(
+            [FromQuery] decimal minEthLiquidity = 0,
+            [FromQuery, Required] StatsOrderBy orderBy = StatsOrderBy.Liquidity
+        )
         {
-            var directories = await _directoryService.GetDirectoriesAsync(minEthLiquidity);
+            var directories = await _statsService.GetExchangesAsync(orderBy, minEthLiquidity);
 
             return Ok(_mapper.Map<List<IExchangeEntity>, DirectoriesDto>(directories.ToList()));
         }

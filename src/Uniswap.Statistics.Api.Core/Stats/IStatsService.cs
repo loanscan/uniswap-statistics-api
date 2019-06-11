@@ -6,6 +6,6 @@ namespace Uniswap.Statistics.Api.Core.Stats
 {
     public interface IStatsService
     {
-        Task<IEnumerable<IExchangeEntity>> GetAllExchangesAsync(StatsOrderBy? orderBy);
+        Task<IEnumerable<IExchangeEntity>> GetExchangesAsync(StatsOrderBy orderBy, decimal minEthLiquidityAmount = 0);
     }
 }

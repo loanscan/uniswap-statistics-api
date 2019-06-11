@@ -20,14 +20,14 @@ namespace Uniswap.Statistics.Api.Core.Stats.Impl
             _exchangeEventsRepository = exchangeEventsRepository;
         }
 
-        public async Task<IEnumerable<IExchangeEntity>> GetAllExchangesAsync(StatsOrderBy? orderBy)
+        public async Task<IEnumerable<IExchangeEntity>> GetExchangesAsync(StatsOrderBy orderBy, decimal minEthLiquidityAmount = 0)
         {
-            var exchanges = (await _exchangeRepository.GetAllAsync()).ToList();
+            var exchanges = (await _exchangeRepository.GetAsync(minEthLiquidityAmount)).ToList();
 
             switch (orderBy)
             {
                 case StatsOrderBy.Liquidity:
-                    return exchanges.OrderByDescending(e => e.EthLiquidity);
+                    return exchanges;
                 case StatsOrderBy.Volume:
                     var events = (await _exchangeEventsRepository.GetForLastDayAsync()).ToList();
                     var ethVolumes = new Dictionary<string, decimal>();
@@ -43,8 +43,6 @@ namespace Uniswap.Statistics.Api.Core.Stats.Impl
                     }
 
                     exchanges.Sort((x, y) => -ethVolumes[x.Id].CompareTo(ethVolumes[y.Id]));
-                    return exchanges;
-                case null:
                     return exchanges;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(orderBy), orderBy, null);
