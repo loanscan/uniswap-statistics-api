@@ -79,7 +79,11 @@ namespace Uniswap.Statistics.Api
                     .AllowAnyHeader());
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Uniswap Statistics API v1"); });
+            app.UseSwaggerUI(c =>
+            {
+                c.EnableDeepLinking();
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Uniswap Statistics API v1");
+            });
             app.UseHttpsRedirection();
             app.UseMvc();
         }
