@@ -35,7 +35,7 @@ namespace Uniswap.Statistics.Api.Resources.V1.Directory.Controllers
         [ProducesResponseType(typeof(DirectoriesDto), 200)]
         public async Task<IActionResult> GetAllDirectoriesAsync(
             [FromQuery] decimal minEthLiquidity = 0,
-            [FromQuery, Required] StatsOrderBy orderBy = StatsOrderBy.Liquidity
+            [FromQuery] StatsOrderBy orderBy = StatsOrderBy.Liquidity
         )
         {
             var directories = await _statsService.GetExchangesAsync(orderBy, minEthLiquidity);
