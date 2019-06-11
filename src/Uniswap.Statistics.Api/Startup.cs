@@ -41,8 +41,6 @@ namespace Uniswap.Statistics.Api
 
             builder.RegisterModule<StatsModule>();
 
-            builder.RegisterModule<DirectoryModule>();
-
             builder.RegisterModule<ExchangeModule>();
 
             builder.RegisterModule<PriceModule>();
