@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Nethereum.Contracts;
@@ -24,9 +25,15 @@ namespace Uniswap.Fetchers.Core.Factory.Impl
 
         public async Task ProcessAsync(EventLog<NewExchangeEventDTO> eventLog)
         {
-            var entity = await _mapper.MapAsync(eventLog);
-
-            await _repository.AddOrUpdate(entity);
+            try
+            {
+                var entity = await _mapper.MapAsync(eventLog);
+                await _repository.AddOrUpdate(entity);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Exception occurred during NewExchangeEvent processing. Exchange: {exchange} Skipping event...", eventLog.Event.Exchange);
+            }
 
             _logger.LogInformation("Event txHash {txHash} logIndex {logIndex} was processed",
                 eventLog.Log.TransactionHash, eventLog.Log.LogIndex.Value);
