@@ -34,7 +34,7 @@ namespace Uniswap.Fetchers.Core.Factory.Impl
 
         public async Task FetchAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Fetching...");
+            _logger.LogInformation("Fetching NewExchangeEventDTO...");
 
             var startBlock = await _startBlockProvider.GetAsync();
 
@@ -44,12 +44,12 @@ namespace Uniswap.Fetchers.Core.Factory.Impl
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Fetching events from {fromBlock} to {toBlock}...", range.FromBlock,
+                _logger.LogDebug("Fetching events from {fromBlock} to {toBlock}...", range.FromBlock,
                     range.ToBlock);
 
                 var eventLogs = await _newExchangeEventsFetcher.FetchAsync(range.FromBlock, range.ToBlock);
 
-                _logger.LogInformation("{amount} event(s) fetched", eventLogs.Count);
+                _logger.LogDebug("{amount} event(s) fetched", eventLogs.Count);
 
                 foreach (var eventLog in eventLogs)
                 {
