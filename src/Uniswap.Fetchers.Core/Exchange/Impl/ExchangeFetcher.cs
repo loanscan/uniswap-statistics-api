@@ -46,10 +46,12 @@ namespace Uniswap.Fetchers.Core.Exchange.Impl
                 
                 var exchanges = await _exchangeRepository.GetAllAsync();
                 
-                _logger.LogInformation("There are {amount} exchange(s)", exchanges.Count());
-
                 while (!cancellationToken.IsCancellationRequested)
-                {                    
+                {
+                    _logger.LogInformation("Processing cycle of {count} exchanges started", exchanges.Count());
+                    
+                    var exchangeProcessingStartTime = DateTime.UtcNow;
+                    
                     foreach (var exchange in exchanges)
                     {
                         var fromBlock =
@@ -58,17 +60,17 @@ namespace Uniswap.Fetchers.Core.Exchange.Impl
 
                         var fetcher = _exchangeEventsFetcherFactory(exchange.Id);
 
-                        _logger.LogInformation("Fetching events for exchange {exchangeAddress}...", exchange.Id);
+                        _logger.LogDebug("Fetching events for exchange {exchangeAddress}...", exchange.Id);
 
                         while (fromBlock <= recentBlock)
                         {
                             var toBlock = Math.Min(fromBlock + _fetcherSettings.BlocksPerIteration, recentBlock);
                             
-                            _logger.LogInformation("Fetching events from {fromBlock} to {toBlock}...", fromBlock, toBlock);
+                            _logger.LogDebug("Fetching events from {fromBlock} to {toBlock}...", fromBlock, toBlock);
 
                             var events = await fetcher.FetchAsync(fromBlock, toBlock);
                             
-                            _logger.LogInformation("{amount} event(s) fetched", events.Count);
+                            _logger.LogDebug("{amount} event(s) fetched", events.Count);
 
                             await _exchangeEventsProcessor.ProcessAsync(events);
 
@@ -78,7 +80,11 @@ namespace Uniswap.Fetchers.Core.Exchange.Impl
                         }
                     }
 
-                    await Task.Delay(_fetcherSettings.DelayMs, cancellationToken);
+                    var elapsedMs = (int)(DateTime.UtcNow - exchangeProcessingStartTime).TotalMilliseconds;
+                    if (elapsedMs < _fetcherSettings.DelayMs)
+                    {
+                        await Task.Delay(_fetcherSettings.DelayMs - elapsedMs, cancellationToken);
+                    }
 
                     if (DateTime.UtcNow - startDate > TimeSpan.FromMilliseconds(_fetcherSettings.UpdateExchangesIntervalMs))
                     {
