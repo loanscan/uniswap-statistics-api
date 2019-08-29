@@ -60,15 +60,6 @@ namespace Uniswap.Statistics.Api
             {
                 app.ApplicationServices.GetService<IIndexInitializer>().Initialize().GetAwaiter().GetResult();
             });
-            
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseHsts();
-            }
 
             app.UseCors(builder =>
                 builder
@@ -82,7 +73,6 @@ namespace Uniswap.Statistics.Api
                 c.EnableDeepLinking();
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Uniswap Statistics API v1");
             });
-            app.UseHttpsRedirection();
             app.UseMvc();
         }
     }

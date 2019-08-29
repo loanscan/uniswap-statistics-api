@@ -18,7 +18,14 @@ namespace Uniswap.Fetchers.Core.Utils
             }
             catch (Exception)
             {
-                resultDecimal = (decimal) result + (decimal) ((double) remainder / (double) decimalsBigInteger);
+                try
+                {
+                    resultDecimal = (decimal) result + (decimal) ((double) remainder / (double) decimalsBigInteger);
+                }
+                catch (Exception e)
+                {
+                    return -1;
+                }
             }
 
             return resultDecimal;
