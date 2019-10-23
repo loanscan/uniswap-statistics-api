@@ -1,8 +1,7 @@
 stages:
   - test
   - build
-  - deploy-to-staging
-  - release
+  - deploy
 
 variables:
   CONTAINER_IMAGE_BUILT_TAG: ${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHA}
@@ -11,7 +10,7 @@ variables:
 # ============= Build ==============
 .build-head: &build-head
   stage: build
-  image: docker:latest
+  image: ds414/gkecli-kube-helm
   services:
   - docker:dind
 
@@ -24,8 +23,7 @@ build_uniswap_fetchers:
   - cp -r ./${CONFIG_REPO_NAME}/deployment ./
   - cp ./${CONFIG_REPO_NAME}/Uniswap.Fetchers/* ./src/Uniswap.Fetchers
   - deployment/updateconfigs.sh Uniswap.Fetchers None
-  - source deployment/login.sh
-  - deployment/build.sh ${AWS_REGISTRY_IMAGE_FETCHERS} Uniswap.Fetchers
+  - deployment/build.sh uniswap-fetchers Uniswap.Fetchers
   only:
   - master
   - develop
@@ -39,8 +37,7 @@ build_uniswap_statistics-api:
   - cp -r ./${CONFIG_REPO_NAME}/deployment ./
   - cp ./${CONFIG_REPO_NAME}/Uniswap.Statistics.Api/* ./src/Uniswap.Statistics.Api
   - deployment/updateconfigs.sh Uniswap.Statistics.Api Content
-  - source deployment/login.sh
-  - deployment/build.sh ${AWS_REGISTRY_IMAGE_UNISWAP_API} Uniswap.Statistics.Api
+  - deployment/build.sh uniswap-statistics-api Uniswap.Statistics.Api
   only:
   - master
   - develop
@@ -48,13 +45,13 @@ build_uniswap_statistics-api:
 
 # ============= Deploy =============
 # ------------ STAGING ----------
-.deploy-head-staging: &deploy-head-staging
-  stage: deploy-to-staging
-  image: lwolf/helm-kubectl-docker:v193_281
+.deploy-head: &deploy-head
+  stage: deploy
+  image: ds414/gkecli-kube-helm
 
 # deploy to environment: staging
 deploy_uniswap_fetchers_staging:
-  <<: *deploy-head-staging
+  <<: *deploy-head
   script:
   - apk add --update git
   - git clone ${GITLAB_CREDITIALS}
@@ -67,7 +64,7 @@ deploy_uniswap_fetchers_staging:
 
 # deploy to environment: staging
 deploy_uniswap_statistics_api_staging:
-  <<: *deploy-head-staging
+  <<: *deploy-head
   script:
   - apk add --update git
   - git clone ${GITLAB_CREDITIALS}
@@ -78,15 +75,10 @@ deploy_uniswap_statistics_api_staging:
   only:
   - develop
 
-# ============= Deploy =============
 # ------------ PROD ----------
-.deploy-head-prod: &deploy-head-prod
-  stage: release
-  image: lwolf/helm-kubectl-docker:v193_281
-
 # deploy to production environment
 deploy_uniswap_fetchers_prod:
-  <<: *deploy-head-prod
+  <<: *deploy-head
   script:
   - apk add --update git
   - git clone ${GITLAB_CREDITIALS}
@@ -99,7 +91,7 @@ deploy_uniswap_fetchers_prod:
 
 # deploy to production environment
 deploy_uniswap_statistics_api_prod:
-  <<: *deploy-head-prod
+  <<: *deploy-head
   script:
   - apk add --update git
   - git clone ${GITLAB_CREDITIALS}
